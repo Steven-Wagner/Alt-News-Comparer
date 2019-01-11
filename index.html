@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>News Compare</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header role="banner">
+        <h1>News Compare</h1>
+    </header>
+    <section>
+        <p>Enter a search term and compare main stream news, alt news, and fact checkers</p>
+    </section>
+    <form>
+        <label for="search">Search Term</label>
+        <input type="text" id="search">
+        <input type="submit">
+    </form>
+    <section class="results hidden">
+        <div>
+            <h2>Alternative News Sites</h2>
+            <ol class="alt-results">
+            </ol>
+        </div>
+        <div>
+            <h2>Main Stream News Sites</h2>
+            <ol class="main-results">
+            </ol>
+        </div>
+        <div>
+            <h2>Fact Checking Websites</h2>
+            <ol class="fact-check-results">
+            </ol>
+        </div>
+    </section>
+
+<script src="main.js"></script>
+</body>
+</html>
