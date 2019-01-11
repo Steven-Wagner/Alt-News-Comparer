@@ -9,11 +9,11 @@ biasData = {
     'NBC News': -3,
     'CBS News': 4,
     'MSNBC': -19,
-    'breitbart.com': 34,
-    'infowars.com': 44,
-    'politicususa.com': -34,
-    'redstate.com': 29,
-    'wnd.com': 36
+    'Breitbart News': 34,
+    'Infowars.com': 44,
+    'Redstate.com': 29,
+    'Wnd.com': 36,
+    'Alternet.org': -23
 }
 
 function clickSubmit () {
@@ -40,11 +40,10 @@ function fetchData (searchTerm) {
       }
       
       $.ajax(settings).done(function (response) {
-        let altNewsData = response;
-        displayAltNews(altNewsData);
-        displayFactCheckNews(altNewsData);
+        let factNewsData = response;
+        displayFactCheckNews(factNewsData);
 
-        lastMonthdate = getDate();
+        let lastMonthdate = getDate();
         
         var settings = {
             "async": true,
@@ -56,6 +55,17 @@ function fetchData (searchTerm) {
           $.ajax(settings).done(function (newsResponse) {
             let mainMediaData = newsResponse;
             displayMainNews(mainMediaData);
+          });
+
+          var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": `https://newsapi.org/v2/everything?from=${lastMonthdate}&apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wnd.com,redstate.com,alternet.org,breitbart.com,infowar.com&q=${searchTerm}&sortBy=publishedAt`,
+            "method": "GET"
+          }
+          
+          $.ajax(settings).done(function (altNewsresponse) {
+            displayAltNews(altNewsresponse);
           });
       });
 }
@@ -88,37 +98,17 @@ function displayFactCheckNews (altNewsData) {
             break;
         }
     }
-    let factCheckHTML = HTMLAltFactNews (factChecks);
+    let factCheckHTML = HTMLFactNews (factChecks);
     $('.fact-check-results').html(factCheckHTML);
 }
 
-
-function displayAltNews(altNewsData) {
-    altData = altNewsData['articles'];
-    altNews = [];
-    console.log(altData);
-    let max=10;
-    for (let i=0; i<max; i++){
-        console.log(altData[i]);
-        if (altData[i]['site_type'] === 'fact_checking'){
-            max += 1;
-        }
-        else {
-            altNews.push(altData[i]);
-        }
-    }
-    let altHTML = HTMLAltFactNews (altNews);
-    $('.alt-results').html(altHTML);
-}
-
-function HTMLAltFactNews (altNews) {
+function HTMLFactNews (altNews) {
     let altArticlesHTML = '';
     for (let i=0; i<altNews.length; i++) {
         let title = altNews[i]['title'];
         let name = altNews[i]['domain'];
-        let biasDiscription = biasScore(name);
         let url = altNews[i]['canonical_url'];
-        altArticlesHTML += `<li><h3>${title}</h3><p>${name}</p><p>${biasDiscription}</p><a target="_blank" href="${url}">${url}</a>`;
+        altArticlesHTML += `<li><h3>${title}</h3><p>${name}</p><a target="_blank" href="${url}">${url}</a>`;
     }
     return altArticlesHTML;
     
@@ -130,11 +120,21 @@ function displayMainNews(mainMediaData) {
     for (let i=0; i<10; i++) {
         articles.push(articlesData[i])
     }
-    let mainArticlesHTML = HTMLMainStreamNews (articles);
+    let mainArticlesHTML = HTMLNews (articles);
     $('.main-results').html(mainArticlesHTML);
 }
 
-function HTMLMainStreamNews (articles) {
+function displayAltNews (altNewsresponse) {
+    let articles = []
+    let articlesData = altNewsresponse['articles'];
+    for (let i=0; i<10; i++) {
+        articles.push(articlesData[i])
+    }
+    let altArticlesHTML = HTMLNews (articles);
+    $('.alt-results').html(altArticlesHTML);
+}
+
+function HTMLNews (articles) {
     articleHTML = '';
     for (let i=0; i<articles.length; i++){
         if (typeof articles[0] == 'undefined') {
