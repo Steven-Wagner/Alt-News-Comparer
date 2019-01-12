@@ -1,19 +1,19 @@
 biasData = {
-    'The New York Times': -5,
-    'The Wall Street Journal': 11,
-    'CNN': -6,
-    'The Huffington Post': -20,
-    'Fox News': 27,
-    'USA Today': 0,
-    'Npr.org': -5,
-    'NBC News': -3,
-    'CBS News': 4,
-    'MSNBC': -19,
-    'Breitbart News': 34,
-    'Infowars.com': 44,
-    'Redstate.com': 29,
-    'Wnd.com': 36,
-    'Alternet.org': -23
+    'The New York Times': [-5, 52],
+    'The Wall Street Journal': [11, 53],
+    'CNN': [-6, 32],
+    'The Huffington Post': [-20, 24],
+    'Fox News': [17, 47],
+    'USA Today': [0, 52],
+    'Npr.org': [-5, 56],
+    'NBC News': [-3, 57], 
+    'CBS News': [4, 57],
+    'MSNBC': [-19, 34],
+    'Breitbart News': [34, 8],
+    'Infowars.com': [44, 1], 
+    'Redstate.com': [29, 11],
+    'Wnd.com': [36, 4],
+    'Alternet.org': [-23, 18]
 }
 
 function clickSubmit () {
@@ -67,7 +67,8 @@ function fetchData (searchTerm) {
           $.ajax(settings).done(function (altNewsresponse) {
             displayAltNews(altNewsresponse);
           });
-      });
+      }).fail();
+      
 }
 
 function getDate () {
@@ -147,9 +148,10 @@ function HTMLNews (articles) {
             let title = articles[i]['title'];
             let source = articles[i]['source']['name'];
             let biasDescription = biasScore(source);
+            let credibilityDescriptor = credibilityScore(source);
             let url = articles[i]['url'];
             let description = articles[i]['description'];
-            articleHTML += `<li><h3>${title}</h3><p>${source}</p><p>${biasDescription}</p><p>${description}</p><a target="_blank" href="${url}">${url}<a>`;
+            articleHTML += `<li><h3>${title}</h3><p>${source}</p><p>${biasDescription}</p><p>${credibilityDescriptor}</p><p>${description}</p><a target="_blank" href="${url}">${url}<a>`;
         }
     }
 
@@ -160,31 +162,65 @@ function biasScore(source) {
     let biasDescriptor = '';
     Object.keys(biasData).forEach(bias => {
         if (source === bias) {
-            biasNum = biasData[bias];
-            if (biasNum>-6 & biasNum<6) {
+            biasNum = biasData[bias][0];
+            if (biasNum>-7 & biasNum<7) {
                 biasDescriptor = "Bias: Center"
             }
-            else if (biasNum>-11 & biasNum<-5) {
+            else if (biasNum > -19 & biasNum <-5) {
                 biasDescriptor = "Bias: Leans Left";
             }
-            else if (biasNum>-21 & biasNum<-10) {
-                biasDescriptor = "Bias: Partisan Left";
+            else if (biasNum > -31 & biasNum < -18) {
+                biasDescriptor = "Bias: Hyper Left";
             }
-            else if (biasNum>5 & biasNum<11) {
+            else if (biasNum > 7 & biasNum < 19) {
                 biasDescriptor = "Bias: Leans Right";
             }
-            else if (biasNum>10 & biasNum<21) {
-                biasDescriptor = "Bias: Partisan Right";
+            else if (biasNum > 18 & biasNum < 31) {
+                biasDescriptor = "Bias: Hyper Right";
             }
-            else if (biasNum<-20) {
+            else if (biasNum<-30) {
                 biasDescriptor = "Bias: Extream Left";
             }
-            else if (biasNum>20) {
+            else if (biasNum>30) {
                 biasDescriptor = "Bias: Extream Right";
             }
         }
     })
     return biasDescriptor;
+}
+
+function credibilityScore(source) {
+    let credibilityDescriptor = '';
+    Object.keys(biasData).forEach(newsDomain => {
+        if (source === newsDomain) {
+            credibilityNum = biasData[newsDomain][1];
+            if (credibilityNum > 55) {
+                credibilityDescriptor = "Credibility: Original Fact Reporting";
+            }
+            else if (credibilityNum < 56 & credibilityNum > 47) {
+                credibilityDescriptor = "Credibility: Fact Reporting";
+            }
+            else if (credibilityNum < 48 & credibilityNum > 39) {
+                credibilityDescriptor = "Credibility: Mix of fact reporting and opinion";
+            }
+            else if (credibilityNum < 40 & credibilityNum > 31) {
+                credibilityDescriptor = "Credibility: Often provides analysis of news; sometimes stories are second hand from other sources";
+            }
+            else if (credibilityNum < 32 & credibilityNum > 23) {
+                credibilityDescriptor = "Credibility: Often adds opinion/onesided";
+            }
+            else if (credibilityNum < 24 & credibilityNum > 15) {
+                credibilityDescriptor = "Credibility: Unfair reporting/onesided";
+            }
+            else if (credibilityNum < 16 & credibilityNum > 7) {
+                credibilityDescriptor = "Credibility: Propaganda, Misleading info";     
+            }
+            else if (credibilityNum < 8) {
+                credibilityDescriptor = "Credibility: Inaccurate/fabricated Info";
+            }
+        }
+    })
+    return credibilityDescriptor;
 }
 
 $(clickSubmit);
