@@ -68,6 +68,16 @@ function fetchData (searchTerm) {
             displayAltNews(altNewsresponse);
           });
       }).fail();
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": `https://api.pushshift.io/reddit/search/comment/?q=${searchTerm}&size=10&after=1d&fields=author,body,permalink&sort_type=score`,
+        "method": "GET",
+      }
+      
+      $.ajax(settings).done(function (redditResponse) {
+        displayComments(redditResponse);
+      });
       
 }
 
@@ -221,6 +231,38 @@ function credibilityScore(source) {
         }
     })
     return credibilityDescriptor;
+}
+
+function displayComments(redditResponse) {
+    let parsedArray = parseComments(redditResponse);
+    let commentHTML = getCommentHTML(parsedArray);
+    $('.comments-results').html(commentHTML);
+}
+
+function getCommentHTML (parsedArray) {
+    commentHTML = '';
+    parsedArray.forEach(commentInfo => {
+        let fullname = commentInfo[0];
+        let comment = commentInfo[1];
+        let redditLink = commentInfo[2];
+        commentHTML += `<li><p>${comment}</p><p>Username: ${fullname}</p><a href="reddit.com${redditLink}">reddit.com${redditLink}</a>`
+    })
+    return commentHTML;
+}
+
+function parseComments(redditResponse) {
+    let parsedArray = [];
+    commentsArray = redditResponse['data'];
+    commentsArray.forEach(commentData => {
+        let fullname = commentData['author'];
+        let comment = commentData['body'];
+        let redditLink = commentData['permalink'];
+        if (comment.length > 150){
+            comment = comment.substr(0,175);
+        }
+        parsedArray.push([fullname,comment,redditLink]);
+    })
+    return parsedArray;
 }
 
 $(clickSubmit);
