@@ -68,15 +68,18 @@ function fetchData (searchTerm) {
             displayAltNews(altNewsresponse);
           });
       }).fail();
+
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": `https://api.pushshift.io/reddit/search/comment/?q=${searchTerm}&size=10&after=1d&fields=author,body,permalink&sort_type=score`,
+        "url": `https://api.pushshift.io/reddit/search/comment/?q=${searchTerm}&after=24h&aggs=link_id&size=0`,
         "method": "GET",
       }
       
-      $.ajax(settings).done(function (redditResponse) {
-        displayComments(redditResponse);
+      $.ajax(settings).done(function (popularRedditsData) {
+        let redditArray = getRelevantData (popularRedditsData);
+        let commentArray = getCommentsForRedditData (redditArray, searchTerm);
+        /*Display results*/
       });
       
 }
@@ -233,36 +236,84 @@ function credibilityScore(source) {
     return credibilityDescriptor;
 }
 
-function displayComments(redditResponse) {
-    let parsedArray = parseComments(redditResponse);
-    let commentHTML = getCommentHTML(parsedArray);
+function getRelevantData (popularRedditsData) {
+    let redditDataArray = [];
+    for (let i=0; i<6; i++){
+        let popularReddits = popularRedditsData['aggs']['link_id'][i]['data'];
+        let redditData = {
+        newsSite: popularReddits['domain'],
+        redditLink: popularReddits['full_link'],
+        redditId: popularReddits['id'],
+        newsTitle: popularReddits['title'],
+        newsSiteUrl: popularReddits['url']
+        }
+        redditDataArray.push(redditData);
+    }
+    return redditDataArray;
+}
+
+function getCommentsForRedditData (redditArray, searchTerm) {
+    let allComments = [];
+    let recursiveRedditArray = redditArray.slice();
+    getComments(allComments, recursiveRedditArray, searchTerm, redditArray);
+}
+
+function getComments (allComments, recursiveRedditArray, searchTerm, redditArray) {
+    if (recursiveRedditArray.length !== 0) {
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": `https://api.pushshift.io/reddit/search/comment/?link_id=${recursiveRedditArray[0]['redditId']}&q=${searchTerm}`,
+            "method": "GET",
+        }
+        
+        $.ajax(settings).done(function (comments) {
+            let commentArray = getRelevantCommentInfo (comments);
+            allComments.push(commentArray);
+            recursiveRedditArray.shift();
+            getComments(allComments, recursiveRedditArray, searchTerm, redditArray);
+        });
+    }
+    else {
+        displayallComments (allComments, redditArray);
+    }
+}
+
+function displayallComments (allComments, redditArray) {
+    /*{username: "cabbage_peddler", comment: "Odds are Trump doesn’t even know he’s an asset. The embodiment of a useful idiot. "}
+    newsSite: "nymag.com", redditLink: "https://www.reddit.com/r/politics/comments/af8pb4/robert_mueller_is_investigating_president_trump/", redditId: "af8pb4", NewsTitle: "Robert Mueller Is Investigating President Trump as a Russian Asset", newsSiteUrl: "http://nymag.com/intelligencer/2019/01/mueller-investigating-trump-russian-asset.html"}*/
+    let commentHTML = '';
+    for  (let i=0; i<redditArray.length; i++) {
+        commentHTML += `<li><h3>${redditArray[i]['newsTitle']}</h3>
+                    <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p>`
+        for (let j=0; j<allComments[i].length; j++) {
+            commentHTML += `<p>Username: ${allComments[i][j]['username']}</p><p>\t${allComments[i][j]['comment']}<p><a href="${redditArray[i]['redditLink']}">See comment in original context</a></li>`;
+        }
+
+    }
     $('.comments-results').html(commentHTML);
 }
 
-function getCommentHTML (parsedArray) {
-    commentHTML = '';
-    parsedArray.forEach(commentInfo => {
-        let fullname = commentInfo[0];
-        let comment = commentInfo[1];
-        let redditLink = commentInfo[2];
-        commentHTML += `<li><p>${comment}</p><p>Username: ${fullname}</p><a href="reddit.com${redditLink}">reddit.com${redditLink}</a>`
-    })
-    return commentHTML;
-}
-
-function parseComments(redditResponse) {
-    let parsedArray = [];
-    commentsArray = redditResponse['data'];
-    commentsArray.forEach(commentData => {
-        let fullname = commentData['author'];
-        let comment = commentData['body'];
-        let redditLink = commentData['permalink'];
-        if (comment.length > 150){
-            comment = comment.substr(0,175);
+function getRelevantCommentInfo (comments) {
+    let commentArray = [];
+    let num = 5;
+    for (let i=0; i<num; i++) {
+        let test = comments['data'].length;
+        if (i<test) {
+            let commentInfo = comments['data'][i];
+            if (commentInfo['body'].length < 350) {
+                let commentObject = {
+                    username: commentInfo['author'],
+                    comment: commentInfo['body']
+                }
+                commentArray.push(commentObject)
+            }
+            else {
+                num++
+            }
         }
-        parsedArray.push([fullname,comment,redditLink]);
-    })
-    return parsedArray;
+    }
+    return commentArray;
 }
 
 $(clickSubmit);
