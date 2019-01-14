@@ -39,13 +39,6 @@
                         <h2><a name="altNews">Alternative News Sites</a></h2>
                         <ol class="result-div-js alt-results">
                             <li>
-                                <h3><a target=_blank href="${url}">${title}</a></h3>
-                                <p>${source} | ${biasDescription}</p>
-                                <p>${credibilityDescriptor}</p>
-                                <div class="seeMore-js">
-                                    <p class="viewer">See More</p>
-                                    <p class="description hidden">${description}</p>
-                                </div>
                             </li>
                         </ol>
                     </div>
@@ -63,16 +56,6 @@
                 <div class="pop-result">
                     <h2><a name="popComments">Popular Reddit Comments</a></h2>
                     <ul class="result-div-js comments-results">
-                        <li><h3>${redditArray[i]['newsTitle']}</h3>
-                            <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p> 
-                            <div class="see-comments-js">
-                                <p class="comments-view-js">See Comments</p>
-                                <div class="comments-js hidden">
-                                    <p>Username: ${allComments[i][j]['username']}</p>
-                                    <p>\t${allComments[i][j]['comment']}</p><a href="${redditArray[i]['redditLink']}">See comment in original context</a>
-                                </div>
-                            </div>
-                        </li>
                     </ul>
                 </div>
             </section>
