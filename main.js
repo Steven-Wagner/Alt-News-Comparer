@@ -16,15 +16,28 @@ biasData = {
     'Alternet.org': [-23, 18]
 }
 
+function newsCompareHandler (){
+    clickSubmit ();
+    clickSeeMore ();
+    clickSeeLess ();
+    clickSeeComments ();
+    clickHideComments ();
+}
+
 function clickSubmit () {
     $('form').submit(event => {
         event.preventDefault();
         let searchTerm = $('#search').val();
-        fetchData (searchTerm);
+        fetchData (searchTerm, getDate());
+        hideWelcomeContent ();
     })
 }
 
-function fetchData (searchTerm) {
+function hideWelcomeContent () {
+    $('.welcome').addClass('hidden');
+}
+
+function fetchData (searchTerm, lastMonthdate) {
     console.log('test');
     var settings = {
         "async": true,
@@ -42,45 +55,48 @@ function fetchData (searchTerm) {
       $.ajax(settings).done(function (response) {
         let factNewsData = response;
         displayFactCheckNews(factNewsData);
-
-        let lastMonthdate = getDate();
+      });
         
-        var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": `https://newsapi.org/v2/everything?apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wsj.com,nytimes.com,cnn.com,huffingtonpost.com,foxnews.com,usatoday.com,%20npr.org,%20nbcnews.com,%20cbsnews.com,%20abcnews.com,%20newsweek.com%20&q=${searchTerm}&from=${lastMonthdate}&sortBy=publishedAt`,
-            "method": "GET",
-          }
-          
-          $.ajax(settings).done(function (newsResponse) {
-            let mainMediaData = newsResponse;
-            displayMainNews(mainMediaData);
-          });
+    var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": `https://newsapi.org/v2/everything?apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wsj.com,nytimes.com,cnn.com,huffingtonpost.com,foxnews.com,usatoday.com,%20npr.org,%20nbcnews.com,%20cbsnews.com,%20abcnews.com,%20newsweek.com%20&q=${searchTerm}&from=${lastMonthdate}&sortBy=publishedAt`,
+        "method": "GET"
+        };
+        
+        $.ajax(settings).done(function (newsResponse) {
+        let mainMediaData = newsResponse;
+        displayMainNews(mainMediaData);
+        });
 
-          var settings = {
-            "async": true,
-            "crossDomain": true,
-            "url": `https://newsapi.org/v2/everything?from=${lastMonthdate}&apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wnd.com,redstate.com,alternet.org,breitbart.com,infowar.com&q=${searchTerm}&sortBy=publishedAt`,
-            "method": "GET"
-          }
-          
-          $.ajax(settings).done(function (altNewsresponse) {
-            displayAltNews(altNewsresponse);
-          });
-      }).fail();
+    var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": `https://newsapi.org/v2/everything?from=${lastMonthdate}&apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wnd.com,redstate.com,alternet.org,breitbart.com,infowar.com&q=${searchTerm}&sortBy=publishedAt`,
+        "method": "GET"
+        };
+    
+    $.ajax(settings).done(function (altNewsresponse) {
+    displayAltNews(altNewsresponse);
+    });
 
-      var settings = {
+    var settings = {
         "async": true,
         "crossDomain": true,
         "url": `https://api.pushshift.io/reddit/search/comment/?q=${searchTerm}&after=24h&aggs=link_id&size=0`,
-        "method": "GET",
-      }
-      
-      $.ajax(settings).done(function (popularRedditsData) {
-        let redditArray = getRelevantData (popularRedditsData);
-        let commentArray = getCommentsForRedditData (redditArray, searchTerm);
-        /*Display results*/
-      });
+        "method": "GET"
+    };
+    
+    $.ajax(settings).done(function (popularRedditsData) {
+        let length = popularRedditsData['aggs']['link_id'].length;
+        if (length !== 0) {
+            let redditArray = getRelevantData (popularRedditsData);
+            getCommentsForRedditData (redditArray, searchTerm);
+        }
+        else {$('.comments-results').html(`<li>No Results</li>`)}
+
+    });
+        
       
 }
 
@@ -122,7 +138,7 @@ function HTMLFactNews (altNews) {
         let title = altNews[i]['title'];
         let name = altNews[i]['domain'];
         let url = altNews[i]['canonical_url'];
-        altArticlesHTML += `<li><h3>${title}</h3><p>${name}</p><a target="_blank" href="${url}">${url}</a>`;
+        altArticlesHTML += `<li><h3><a target="_blank" href="${url}">${title}</a></h3><p>${name}</p></li>`;
     }
     return altArticlesHTML;
     
@@ -163,8 +179,8 @@ function HTMLNews (articles) {
             let biasDescription = biasScore(source);
             let credibilityDescriptor = credibilityScore(source);
             let url = articles[i]['url'];
-            let description = articles[i]['description'];
-            articleHTML += `<li><h3>${title}</h3><p>${source}</p><p>${biasDescription}</p><p>${credibilityDescriptor}</p><p>${description}</p><a target="_blank" href="${url}">${url}<a>`;
+            let description = articles[i]['description'];                                                               /*change this link to a question mark img*/
+            articleHTML += `<li><h3><a target=_blank href="${url}">${title}</a></h3><p>${source} | ${biasDescription}   <a href="faq.html" alt="FAQ Page">?</a></p><p>${credibilityDescriptor}</p><div class="seeMore-js"><p class="viewer">See More</p><p class="description hidden">${description}</p></div></li>`;
         }
     }
 
@@ -238,7 +254,11 @@ function credibilityScore(source) {
 
 function getRelevantData (popularRedditsData) {
     let redditDataArray = [];
-    for (let i=0; i<6; i++){
+    let num = 6;
+    if (popularRedditsData['aggs']['link_id'].length < 5) {
+        num = popularRedditsData['aggs']['link_id'].length;
+    }
+    for (let i=0; i<num; i++){
         let popularReddits = popularRedditsData['aggs']['link_id'][i]['data'];
         let redditData = {
         newsSite: popularReddits['domain'],
@@ -285,13 +305,14 @@ function displayallComments (allComments, redditArray) {
     let commentHTML = '';
     for  (let i=0; i<redditArray.length; i++) {
         commentHTML += `<li><h3>${redditArray[i]['newsTitle']}</h3>
-                    <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p>`
+                    <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p><div class="see-comments-js"><p class="comments-view-js">See Comments</p><div class="comments-js hidden">`
         for (let j=0; j<allComments[i].length; j++) {
-            commentHTML += `<p>Username: ${allComments[i][j]['username']}</p><p>\t${allComments[i][j]['comment']}<p><a href="${redditArray[i]['redditLink']}">See comment in original context</a></li>`;
+            commentHTML += `<div class="each-comment"><p>Username: ${allComments[i][j]['username']}</p><p>\t${allComments[i][j]['comment']}<a href="${redditArray[i]['redditLink']}">See comment in original context</a></p></div>`;
         }
-
+    commentHTML += '</div></div></li>';
     }
     $('.comments-results').html(commentHTML);
+    revealResults ();
 }
 
 function getRelevantCommentInfo (comments) {
@@ -316,4 +337,48 @@ function getRelevantCommentInfo (comments) {
     return commentArray;
 }
 
-$(clickSubmit);
+function revealResults () {
+    $('.results').removeClass('hidden');
+}
+
+function clickSeeMore () {
+    $('.result-div-js').on('click','.seeMore-js', event => {
+        $(event.currentTarget).find('.description').removeClass('hidden');
+        $(event.currentTarget).find('.viewer').text('See Less');
+        $(event.currentTarget).removeClass('seeMore-js');
+        $(event.currentTarget).addClass('seeLess-js');
+        console.log('testclick');
+    })
+}
+
+function clickSeeLess () {
+    $('.result-div-js').on('click','.seeLess-js', event => {
+        $(event.currentTarget).find('.description').addClass('hidden');
+        $(event.currentTarget).find('.viewer').text('See More');
+        $(event.currentTarget).removeClass('seeLess-js');
+        $(event.currentTarget).addClass('seeMore-js');
+        console.log('testclick');
+    })
+}
+
+function clickSeeComments () {
+    $('.result-div-js').on('click','.see-comments-js', event => {
+        console.log('test10');
+        $(event.currentTarget).find('.comments-js').removeClass('hidden');
+        $(event.currentTarget).find('.comments-view-js').text('Hide Comments');
+        $(event.currentTarget).removeClass('see-comments-js');
+        $(event.currentTarget).addClass('hide-comments-js');
+        console.log('test4');
+    })
+}
+
+function clickHideComments () {
+    $('.result-div-js').on('click','.hide-comments-js', event => {
+        $(event.currentTarget).find('.comments-js').addClass('hidden');
+        $(event.currentTarget).find('.comments-view-js').text('See Comments');
+        $(event.currentTarget).removeClass('hide-comments-js');
+        $(event.currentTarget).addClass('see-comments-js');
+    })
+}
+
+$(newsCompareHandler);

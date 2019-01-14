@@ -9,39 +9,80 @@
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header role="banner">
-        <h1>News Compare</h1>
-    </header>
-    <section>
-        <p>Enter a search term and compare main stream news, alt news, and fact checkers</p>
-    </section>
-    <form>
-        <label for="search">Search Term</label>
-        <input type="text" id="search">
-        <input type="submit">
-    </form>
-    <section class="results hidden">
-        <div>
-            <h2>Alternative News Sites</h2>
-            <ol class="alt-results">
-            </ol>
-        </div>
-        <div>
-            <h2>Main Stream News Sites</h2>
-            <ol class="main-results">
-            </ol>
-        </div>
-        <div>
-            <h2>Fact Checking Websites</h2>
-            <ol class="fact-check-results">
-            </ol>
-        </div>
-        <div>
-            <h2>Popular Reddit Comments</h2>
-            <ul class="comments-results">
+    <div class="wrapper-for-footer">
+        <nav role="navigation">
+            <ul class="nav-links">
+                <li><a href="#altNews">Alt News</a></li>
+                <li><a href="#mainstreamNews">Mainstream News</a></li>
+                <li><a href="#factChecker">Fact Checkers</a></li>
+                <li><a href="#popComments">Popular Comments</a></li>
             </ul>
-        </div>
-    </section>
+            <form>
+                <label for="search">Enter a search term and compare</label>
+                <input type="text" id="search">
+                <input type="submit">
+            </form>
+        </nav>
+        <header role="banner">
+                <h1>News Compare</h1>
+        </header>
+        <section class="welcome">
+            <h2>Enter a search term and compare results from alternative news sites and mainstream media</h2>
+            <p>Find fact checking articles</p>
+            <p>See popular comments</p>
+            <p>Don't just read the news; compare the news</p>
+        </section>
+        <main role="main">
+            <section class="results hidden">
+                <div class="compare-wrapper">
+                    <div>
+                        <h2><a name="altNews">Alternative News Sites</a></h2>
+                        <ol class="result-div-js alt-results">
+                            <li>
+                                <h3><a target=_blank href="${url}">${title}</a></h3>
+                                <p>${source} | ${biasDescription}</p>
+                                <p>${credibilityDescriptor}</p>
+                                <div class="seeMore-js">
+                                    <p class="viewer">See More</p>
+                                    <p class="description hidden">${description}</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h2><a name="mainstreamNews">Main Stream News Sites</a></h2>
+                        <ol class="result-div-js main-results">
+                        </ol>
+                    </div>
+                </div>
+                <div class="fact-result">
+                    <h2><a name="factChecker">Fact Checking Websites</a></h2>
+                    <ol class=" result-div-js fact-check-results">
+                    </ol>
+                </div>
+                <div class="pop-result">
+                    <h2><a name="popComments">Popular Reddit Comments</a></h2>
+                    <ul class="result-div-js comments-results">
+                        <li><h3>${redditArray[i]['newsTitle']}</h3>
+                            <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p> 
+                            <div class="see-comments-js">
+                                <p class="comments-view-js">See Comments</p>
+                                <div class="comments-js hidden">
+                                    <p>Username: ${allComments[i][j]['username']}</p>
+                                    <p>\t${allComments[i][j]['comment']}</p><a href="${redditArray[i]['redditLink']}">See comment in original context</a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        <footer role="contentinfo">
+            <p>This website utilizes: <a href="https://newsapi.org/">NewsAPI.org</a>, <a href="https://hoaxy.iuni.iu.edu/">HoaxyAPI</a>, and <a href="https://github.com/pushshift/api">Pushshift</a></p>
+            <p>For more information on this website visit our <a href="faq.html">FAQ Page</a>.</p>
+            <p>Copyright Steven Wagner 2019</p>
+        </footer>
+    </div>
 
 <script src="main.js"></script>
 </body>
