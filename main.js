@@ -180,7 +180,7 @@ function HTMLNews (articles) {
             let credibilityDescriptor = credibilityScore(source);
             let url = articles[i]['url'];
             let description = articles[i]['description'];                                                               /*change this link to a question mark img*/
-            articleHTML += `<li><h3><a target=_blank href="${url}">${title}</a></h3><p>${source} | ${biasDescription}   <a href="faq.html" alt="FAQ Page">?</a></p><p>${credibilityDescriptor}</p><div class="seeMore-js"><p class="viewer">See More</p><p class="description hidden">${description}</p></div></li>`;
+            articleHTML += `<li><h3><a target=_blank href="${url}">${title}</a></h3><p>${source} | ${biasDescription}   <a target="_blank" href="faq.html" alt="FAQ Page">?</a></p><p>${credibilityDescriptor}</p><div class="seeMore-js"><p class="viewer">See More</p><p class="description hidden">${description}</p></div></li>`;
         }
     }
 
@@ -192,7 +192,7 @@ function biasScore(source) {
     Object.keys(biasData).forEach(bias => {
         if (source === bias) {
             biasNum = biasData[bias][0];
-            if (biasNum>-7 & biasNum<7) {
+            if (biasNum>-6 & biasNum<6) {
                 biasDescriptor = "Bias: Center"
             }
             else if (biasNum > -19 & biasNum <-5) {
@@ -201,7 +201,7 @@ function biasScore(source) {
             else if (biasNum > -31 & biasNum < -18) {
                 biasDescriptor = "Bias: Hyper Left";
             }
-            else if (biasNum > 7 & biasNum < 19) {
+            else if (biasNum > 5 & biasNum < 19) {
                 biasDescriptor = "Bias: Leans Right";
             }
             else if (biasNum > 18 & biasNum < 31) {
@@ -224,16 +224,16 @@ function credibilityScore(source) {
         if (source === newsDomain) {
             credibilityNum = biasData[newsDomain][1];
             if (credibilityNum > 55) {
-                credibilityDescriptor = "Credibility: Original Fact Reporting";
+                credibilityDescriptor = "Credibility: Original fact reporting";
             }
             else if (credibilityNum < 56 & credibilityNum > 47) {
-                credibilityDescriptor = "Credibility: Fact Reporting";
+                credibilityDescriptor = "Credibility: Fact reporting";
             }
             else if (credibilityNum < 48 & credibilityNum > 39) {
                 credibilityDescriptor = "Credibility: Mix of fact reporting and opinion";
             }
             else if (credibilityNum < 40 & credibilityNum > 31) {
-                credibilityDescriptor = "Credibility: Often provides analysis of news; sometimes stories are second hand from other sources";
+                credibilityDescriptor = "Credibility: Less reliant on original fact reporting; ";
             }
             else if (credibilityNum < 32 & credibilityNum > 23) {
                 credibilityDescriptor = "Credibility: Often adds opinion/onesided";
