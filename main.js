@@ -28,8 +28,13 @@ function clickSubmit () {
     $('form').submit(event => {
         event.preventDefault();
         let searchTerm = $('#search').val();
-        fetchData (searchTerm, getDate());
-        hideWelcomeContent ();
+        if (searchTerm !== '') {
+            fetchData (searchTerm, getDate());
+            hideWelcomeContent ();
+        }
+        else {
+            alert('Please enter a search term');
+        }
     })
 }
 
@@ -46,9 +51,7 @@ function fetchData (searchTerm, lastMonthdate) {
         "method": "GET",
         "headers": {
           "Accept": "application/json",
-          "X-Mashape-Key": "TcWIAYm5YCmsh3fBLAJ3Rz05FOxHp1sBjoDjsnV01p5E4gGfIp",
-          "cache-control": "no-cache",
-          "Postman-Token": "c364eacd-3d1c-4aa3-aa27-b93cf02f7b9a"
+          "X-Mashape-Key": "TcWIAYm5YCmsh3fBLAJ3Rz05FOxHp1sBjoDjsnV01p5E4gGfIp"
         }
       }
       
@@ -112,7 +115,7 @@ function getDate () {
     else {
         month--;
     }
-    currentdate = `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`;
 }
 
 function displayFactCheckNews (altNewsData) {
@@ -165,7 +168,7 @@ function displayAltNews (altNewsresponse) {
 }
 
 function HTMLNews (articles) {
-    articleHTML = '';
+    let articleHTML = '';
     for (let i=0; i<articles.length; i++){
         if (typeof articles[0] == 'undefined') {
             return `<li>No Results Found</li>`;
@@ -305,7 +308,7 @@ function displayallComments (allComments, redditArray) {
     let commentHTML = '';
     for  (let i=0; i<redditArray.length; i++) {
         commentHTML += `<li><h3>${redditArray[i]['newsTitle']}</h3>
-                    <p>Source: ${redditArray[i]['newsSite']} <a href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p><div class="see-comments-js"><p class="comments-view-js">See Comments</p><div class="comments-js hidden">`
+                    <p>Source: ${redditArray[i]['newsSite']} <a target="_blank" href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p><div class="see-comments-js"><p class="comments-view-js">See Comments</p><div class="comments-js hidden">`
         for (let j=0; j<allComments[i].length; j++) {
             commentHTML += `<div class="each-comment"><p>Username: ${allComments[i][j]['username']}</p><p>\t${allComments[i][j]['comment']}<a href="${redditArray[i]['redditLink']}">See comment in original context</a></p></div>`;
         }

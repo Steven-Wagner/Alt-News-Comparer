@@ -6,12 +6,14 @@
     <title>News Compare</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Chonburi|Fjord+One" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="wrapper-for-footer">
         <nav role="navigation">
             <ul class="nav-links">
+                <li><a href="#newsCompare">News Compare</a></li>
                 <li><a href="#altNews">Alt News</a></li>
                 <li><a href="#mainstreamNews">Mainstream News</a></li>
                 <li><a href="#factChecker">Fact Checkers</a></li>
@@ -19,8 +21,10 @@
             </ul>
             <form>
                 <label for="search">Enter a search term and compare</label>
-                <input type="text" id="search">
-                <input type="submit">
+                <div>
+                    <input type="text" id="search">
+                    <input type="submit">
+                </div>
             </form>
         </nav>
         <header role="banner">
@@ -35,29 +39,29 @@
         <main role="main">
             <section class="results hidden">
                 <div class="compare-wrapper">
-                    <div>
+                    <section class="news-results">
                         <h2><a name="altNews">Alternative News Sites</a></h2>
                         <ol class="result-div-js alt-results">
                             <li>
                             </li>
                         </ol>
-                    </div>
-                    <div>
+                    </section>
+                    <section class="news-results">
                         <h2><a name="mainstreamNews">Main Stream News Sites</a></h2>
                         <ol class="result-div-js main-results">
                         </ol>
-                    </div>
+                    </section>
                 </div>
-                <div class="fact-result">
+                <section class="fact-result">
                     <h2><a name="factChecker">Fact Checking Websites</a></h2>
                     <ol class=" result-div-js fact-check-results">
                     </ol>
-                </div>
-                <div class="pop-result">
+                </section>
+                <section class="pop-result">
                     <h2><a name="popComments">Popular Reddit Comments</a></h2>
                     <ul class="result-div-js comments-results">
                     </ul>
-                </div>
+                </section>
             </section>
         </main>
         <footer role="contentinfo">
