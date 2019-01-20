@@ -111,8 +111,9 @@ function fetchData (searchTerm, lastMonthdate) {
         }
         else {
             $('.comments-results').html(`<li>No Results</li>`);
-            hideWelcomeContent ();
+            /*hideWelcomeContent ();*/
             revealResults ();
+            hideLoading ();
         }
 
     });
@@ -318,6 +319,7 @@ function getComments (allComments, recursiveRedditArray, searchTerm, redditArray
     }
     else {
         displayallComments (allComments, redditArray);
+        hideLoading ();
     }
 }
 
