@@ -1,4 +1,5 @@
 biasData = {
+    /*index[0] is bias score, [1] is credibility score*/
     'The New York Times': [-5, 52],
     'The Wall Street Journal': [11, 53],
     'CNN': [-6, 32],
@@ -119,7 +120,6 @@ function fetchData (searchTerm, lastMonthdate) {
 
     Promise.all([factCheckPromise, newsPromise, altNewsPromise, redditPromise]).then(function (any) {
     }).catch(e => {
-        hideWelcomeContent(); 
         hideLoading ();
         alert(`${e['statusText']} Please try again!`);
     })
