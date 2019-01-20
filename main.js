@@ -371,7 +371,6 @@ function clickSeeMore () {
         $(event.currentTarget).find('.viewer').text('See Less');
         $(event.currentTarget).removeClass('seeMore-js');
         $(event.currentTarget).addClass('seeLess-js');
-        console.log('testclick');
     })
 }
 
@@ -381,18 +380,15 @@ function clickSeeLess () {
         $(event.currentTarget).find('.viewer').text('See More');
         $(event.currentTarget).removeClass('seeLess-js');
         $(event.currentTarget).addClass('seeMore-js');
-        console.log('testclick');
     })
 }
 
 function clickSeeComments () {
     $('.result-div-js').on('click','.see-comments-js', event => {
-        console.log('test10');
         $(event.currentTarget).find('.comments-js').removeClass('hidden');
         $(event.currentTarget).find('.comments-view-js').text('Hide Comments');
         $(event.currentTarget).removeClass('see-comments-js');
         $(event.currentTarget).addClass('hide-comments-js');
-        console.log('test4');
     })
 }
 
