@@ -12,13 +12,14 @@ body {
     margin: 0;
     height: 100%;
     font-family: 'Fjord One', serif;
+    word-wrap: break-word;
 }
 
-.wrapper-for-footer {
+.content-wrapper {
     min-height:100%;
     position:relative;
     padding-bottom: 100px;
-    background-color: rgb(246, 245, 252, .6);
+    background-color: rgb(246, 245, 252, .5);
 }
 
 nav {
@@ -63,8 +64,15 @@ nav {
     padding: 5px;
 }
 
+.nav-anchors {
+    display: block;
+    height: 225px;
+    margin-top: -225px;
+    visibility: hidden;
+}
+
 form {
-    margin: 0 10px 5px 10px;
+    margin: 0 10px 10px 10px;
     display: flex;
     flex-direction: column;
 }
@@ -77,6 +85,7 @@ label {
     height: 1.75em;
     border-radius: 5px;
     border: 1px solid #4B6A88;
+    padding: 3px;
 }
 
 input[type="submit"] {
@@ -93,36 +102,64 @@ header {
     padding-top: 125px;
     margin: 0 10px 0 10px;
     text-align: center;
-    font-family: 'Chonburi', cursive;
     text-shadow: 2px 2px 5px rgb(117, 163, 211);
 }
 
 h2 {
-    font-family: 'Open Sans', sans-serif;
     text-shadow: 2px 2px 5px rgb(117, 163, 211);
 
 }
 
 .welcome{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     margin: 0 10px;
 }
 
 .welcome h2 {
     text-align: center;
-    font-family: 'Chonburi', cursive;
     text-shadow: none;
+}
+
+.welcome p {
+    padding: 0 20px;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 5px rgb(117, 163, 211);
+    display: flex;
+    align-items: center;
+}
+
+.icons {
+    height: 35px;
+    width: 55px;
+    padding: 0 20px 0 0;
+}
+
+section h2 {
+    display: flex;
+    align-items: center;
+}
+
+@keyframes loading {
+    100% {
+        transform: rotate(360deg); 
+    }
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+}
+
+.loadingIcon {
+    position: fixed;
+    top: 200px;
+    margin: 0 auto;
+    height: 50px;
+    width: 50px;
+    animation: loading 1s linear infinite;
 }
 
 main {
     margin: 0 15px 0 15px;
-}
-
-.hidden {
-    display: none;
 }
 
 .compare-wrapper {
@@ -135,22 +172,23 @@ main {
     padding: 10px;
     margin: 10px 0 20px 0;
     background-color: rgb(243, 243, 243, .8);
-    box-shadow: 3px 3px 10px rgb(167, 167, 184), -3px -3px 10px rgb(167, 167, 184);
+    border: 2px solid rgb(228, 228, 228);
+    box-shadow: 3px 3px 10px rgb(167, 167, 184);
     border-radius: 10px;
 }
 
-section {
-    overflow-wrap: break-word;
-}
-
 .result-div-js li {
-    border-bottom: 5px solid rgb(228, 228, 228);
+    box-shadow: 3px 3px 10px rgb(167, 167, 184);
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
 }
 
-.result-div-js li:nth-child(1) {
-    border-top: 5px solid rgb(228, 228, 228);
+.sourceInfo, .commentContent {
+    border-left: 2px solid #4B6A88;
+    margin: 5px;
+    padding-left: 10px;
 }
-  
 
 ol, ul {
     list-style: none;
@@ -175,26 +213,26 @@ h3 a:hover {
     color: blue;
 }
 
-.seeMore-js, .seeLess-js, .see-comments-js {
+.seeMore-js, .seeLess-js, .see-comments-js, .hide-comments-js {
     font-weight: bold;
     color: rgb(59, 84, 109);
 
 }
 
-.seeMore-js:hover, .seeLess-js:hover {
+.seeMore-js:hover, .seeLess-js:hover, .see-comments-js:hover, .hide-comments-js:hover {
     cursor: pointer;
 }
 
-.description {
+.description, .each-comment {
     color: black;
+    font-weight: 400;
 }
 
 .each-comment {
     margin: 10px 10px;
     padding: 10px;
-    box-shadow: 3px 3px 10px rgb(167, 167, 184), -3px -3px 10px rgb(167, 167, 184);
+    box-shadow: 3px 3px 10px rgb(167, 167, 184);
     border-radius: 5px;
-    color: black;
 }
 
 .pop-result, .fact-result {
@@ -205,7 +243,6 @@ footer {
     background-image: linear-gradient( rgb(243, 243, 243), rgb(247, 247, 247));
     position:absolute;
     bottom:0;
-    height: 75px;
     width: 100%;
     border-top: 2px solid rgb(228, 228, 228);
 }
@@ -215,28 +252,27 @@ footer p {
     font-size: .6em;
 }
 
+.hidden {
+    display: none;
+}
+
 @media only screen and (min-width: 800px) {
 
-    /*.results {
-        display: flex;
-        flex-direction: column;
-    } Im keeping this around in case I decide to move the nav bar to fixed left*/
-
     main {
-        margin: 50px;
+        margin: 0 50px;
     }
 
     nav {
         flex-direction: row-reverse;
         justify-content: space-around;
         align-items: center;
-        /*font-size: 1.25em;*/
     }
 
     .nav-links {
         width: 45%;
     }
 
+    /*Remove nav link 2 and 3 and add 1*/
     .nav-links li:nth-child(2), .nav-links li:nth-child(3) {
         display: none;
     }
@@ -245,13 +281,35 @@ footer p {
         display: inline;
     }
 
+
     .nav-links li {
         padding: 10px;
     }
 
+    .nav-anchors {
+        display: block;
+        height: 200px;
+        margin-top: -200px;
+        visibility: hidden;
+    }
+
+    header {
+        padding-top: 75px;
+    }
+
+    .welcome {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .welcome p {
+        font-size: 1.2em;
+    }
+
     .compare-wrapper {
         flex-direction: row;
-        /*padding: 0 50px 0 50px;*/
         justify-content: space-around;
     }
 
@@ -269,14 +327,9 @@ footer p {
     .fact-check-results li {
         flex: 0 0 15%;
         padding: 5px;
-        border-top: 5px solid rgb(228, 228, 228);
         margin: 10px;
-        box-shadow: 3px 3px 10px rgb(167, 167, 184), -3px -3px 10px rgb(167, 167, 184);
+        box-shadow: 3px 3px 10px rgb(167, 167, 184);
     }
-
-    /*.fact-check-results li:first-child {
-        border-top: 1px solid black;
-    }*/
 
     .fact-check-results li h3 {
         margin-top: 10px;
@@ -284,5 +337,9 @@ footer p {
 
     .fact-check-results li p {
         margin-bottom: 10px;
+    }
+
+    .hidden {
+        display: none
     }
 }

@@ -10,9 +10,9 @@
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="wrapper-for-footer">
+    <div class="content-wrapper">
         <nav role="navigation">
-            <ul class="nav-links">
+            <ul class="nav-links hidden">
                 <li><a href="#newsCompare">News Compare</a></li>
                 <li><a href="#altNews">Alt News</a></li>
                 <li><a href="#mainstreamNews">Mainstream News</a></li>
@@ -32,33 +32,35 @@
         </header>
         <section class="welcome">
             <h2>Enter a search term and compare results from alternative news sites and mainstream media</h2>
-            <p>Find fact checking articles</p>
-            <p>See popular comments</p>
-            <p>Don't just read the news; compare the news</p>
+            <p><img class="icons" src="https://i.imgur.com/0K7Mch7.png" alt="Check-mark Icon">Find fact checking articles</p>
+            <p><img class="icons" src="https://i.imgur.com/GRQ3Vdb.png" alt="comment icon">popular comments</p>
+            <p><img class="icons" src="https://i.imgur.com/wnyvvzE.png" alt="newspaper icon">Don't just read the news; compare the news</p>
         </section>
+        <div class="loading hidden">
+        </div>
         <main role="main">
             <section class="results hidden">
                 <div class="compare-wrapper">
-                    <section class="news-results">
-                        <h2><a name="altNews">Alternative News Sites</a></h2>
+                    <section class="news-results"><span class="nav-anchors" id="newsCompare"></span>
+                        <h2><img class="icons" src="https://i.imgur.com/wnyvvzE.png" alt="newspaper icon"><a name="altNews">Alternative News Sites</a></h2><span class="nav-anchors" id="altNews"></span>
                         <ol class="result-div-js alt-results">
                             <li>
                             </li>
                         </ol>
                     </section>
                     <section class="news-results">
-                        <h2><a name="mainstreamNews">Main Stream News Sites</a></h2>
+                        <h2><img class="icons" src="https://i.imgur.com/wnyvvzE.png" alt="newspaper icon"><a name="mainstreamNews">Mainstream News Sites</a></h2><span class="nav-anchors" id="mainstreamNews"></span>
                         <ol class="result-div-js main-results">
                         </ol>
                     </section>
                 </div>
                 <section class="fact-result">
-                    <h2><a name="factChecker">Fact Checking Websites</a></h2>
+                    <h2><img class="icons" src="https://i.imgur.com/0K7Mch7.png" alt="Check-mark Icon"><a name="factChecker">Fact Checking Websites</a></h2><span class="nav-anchors" id="factChecker"></span>
                     <ol class=" result-div-js fact-check-results">
                     </ol>
                 </section>
                 <section class="pop-result">
-                    <h2><a name="popComments">Popular Reddit Comments</a></h2>
+                    <h2><img class="icons" src="https://i.imgur.com/GRQ3Vdb.png" alt="comment icon"><a name="popComments">Popular Reddit Comments</a></h2><span class="nav-anchors" id="popComments"></span>
                     <ul class="result-div-js comments-results">
                     </ul>
                 </section>
