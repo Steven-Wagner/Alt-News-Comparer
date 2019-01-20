@@ -111,7 +111,6 @@ function fetchData (searchTerm, lastMonthdate) {
         }
         else {
             $('.comments-results').html(`<li>No Results</li>`);
-            /*hideWelcomeContent ();*/
             revealResults ();
             hideLoading ();
         }
