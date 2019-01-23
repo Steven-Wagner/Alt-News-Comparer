@@ -20,6 +20,7 @@ biasData = {
 function newsCompareHandler (){
     clickSubmit ();
     clickSeeMore ();
+    preventPropigationOnCommentsClick ();
     clickSeeLess ();
     clickSeeComments ();
     clickHideComments ();
@@ -63,7 +64,7 @@ function displayLoadingIcon () {
 
 function fetchData (searchTerm, lastMonthdate) {
 
-    var settings = {
+    const apiCallForFactCheck = {
         "url": `https://api-hoaxy.p.mashape.com/articles?sort_by=relevant&use_lucene_syntax=true&query=${searchTerm}`,
         "method": "GET",
         "headers": {
@@ -72,7 +73,7 @@ function fetchData (searchTerm, lastMonthdate) {
         }
       }
       
-    let factCheckPromise = $.ajax(settings).done(function (factNewsData) {
+    const factCheckPromise = $.ajax(apiCallForFactCheck).done(function (factNewsData) {
         if (factNewsData["error"] === "No article found!") {
             $('.fact-check-results').html(`<li>No Results</li>`);
         }
@@ -81,31 +82,31 @@ function fetchData (searchTerm, lastMonthdate) {
         }
       });
         
-    var settings = {
+    const apiCallMainstreamNews = {
         "url": `https://newsapi.org/v2/everything?apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wsj.com,nytimes.com,cnn.com,huffingtonpost.com,foxnews.com,usatoday.com,%20npr.org,%20nbcnews.com,%20cbsnews.com,%20abcnews.com20&q=${searchTerm}&from=${lastMonthdate}&sortBy=publishedAt`,
         "method": "GET"
         };
         
-    let newsPromise = $.ajax(settings).done(function (newsResponse) {
+    const newsPromise = $.ajax(apiCallMainstreamNews).done(function (newsResponse) {
         displayMainNews(newsResponse);
         });
 
-    var settings = {
+    const apiCallAltNews = {
         "url": `https://newsapi.org/v2/everything?from=${lastMonthdate}&apiKey=ba81d44e6d054cc9b78df51ce86a46f0&domains=wnd.com,redstate.com,alternet.org,breitbart.com,infowar.com&q=${searchTerm}&sortBy=publishedAt`,
         "method": "GET"
         };
     
-    let altNewsPromise = $.ajax(settings).done(function (altNewsresponse) {
+    const altNewsPromise = $.ajax(apiCallAltNews).done(function (altNewsresponse) {
         displayAltNews(altNewsresponse);
     });
 
-    var settings = {
+    const apiCallRedditArticles = {
         "url": `https://api.pushshift.io/reddit/search/comment/?q=${searchTerm}&after=24h&aggs=link_id&size=0`,
         "method": "GET"
     };
     
-    let redditPromise = $.ajax(settings).done(function (popularRedditsData) {
-        let length = popularRedditsData['aggs']['link_id'].length;
+    const redditPromise = $.ajax(apiCallRedditArticles).done(function (popularRedditsData) {
+        const length = popularRedditsData['aggs']['link_id'].length;
         if (length !== 0) {
             let redditArray = getRelevantData (popularRedditsData);
             CommentsForRedditData (redditArray, searchTerm);
@@ -141,32 +142,25 @@ function getDate () {
 }
 
 function displayFactCheckNews (factCheckData) {
-    factChecks = [];
     factData = factCheckData['articles'];
-    for (let i=0; i<factData.length; i++){
-        if (factChecks.length<=9){
-            if (factData[i]['site_type'] === 'fact_checking') {
-                factChecks.push(factData[i]);
-            }
-        }
-        else {
-            break;
-        }
-    }
-    let factCheckHTML = HTMLFactNews (factChecks);
+
+    const factCheckingArticles = factData.filter(article => {
+        return article.site_type === 'fact_checking';
+    })
+
+    const factCheckHTML = HTMLFactNews(factCheckingArticles);
+
     $('.fact-check-results').html(factCheckHTML);
 }
 
 function HTMLFactNews (factNews) {
-    let factArticlesHTML = '';
-    for (let i=0; i<factNews.length; i++) {
-        let title = factNews[i]['title'];
-        let name = factNews[i]['domain'];
-        let url = factNews[i]['canonical_url'];
-        factArticlesHTML += `<li><h3><a target="_blank" href="${url}">${title}</a></h3><p>${name}</p></li>`;
-    }
-    return factArticlesHTML;
-    
+
+    return factNews.map(factArticle => {
+        let title = factArticle.title;
+        let name = factArticle.domain;
+        let url = factArticle.canonical_url;
+        return `<li><h3><a target="_blank" href="${url}">${title}</a></h3><p>${name}</p></li>`;
+    }).join("");  
 }
 
 function displayMainNews(mainMediaData) {
@@ -175,12 +169,8 @@ function displayMainNews(mainMediaData) {
 }
 
 function getHTMLNews (newsData) {
-    let articles = []
     let articlesData = newsData['articles'];
-    for (let i=0; i<10; i++) {
-        articles.push(articlesData[i])
-    }
-    return HTMLNews (articles);
+    return HTMLNews(articlesData);
 }
 
 function displayAltNews (altNewsresponse) {
@@ -189,26 +179,19 @@ function displayAltNews (altNewsresponse) {
 }
 
 function HTMLNews (articles) {
-    let articleHTML = '';
-    for (let i=0; i<articles.length; i++){
-        if (typeof articles[0] == 'undefined') {
-            return `<li>No Results Found</li>`;
-        }
-        else if (typeof articles[i] == 'undefined'){
-            return articleHTML;
-            }
-        else {
-            let title = articles[i]['title'];
-            let source = articles[i]['source']['name'];
-            let biasDescription = biasScore(source);
-            let credibilityDescriptor = credibilityScore(source);
-            let url = articles[i]['url'];
-            let description = articles[i]['description'];                                                               /*change this link to a question mark img*/
-            articleHTML += `<li><h3><a target=_blank href="${url}">${title}</a></h3><div class="sourceInfo" <p>${source} | ${biasDescription}   <a target="_blank" href="faq.html" alt="FAQ Page">?</a></p><p>${credibilityDescriptor}</p><div class="seeMore-js"><p class="viewer">See More</p><p class="description hidden">${description}</p></div></div></li>`;
-        }
+    if (typeof articles[0] == 'undefined') {
+        return `<li>No Results Found</li>`;
     }
 
-    return articleHTML;
+    return articles.map(article => {
+        let title = article.title;
+        let source = article.source.name;
+        let biasDescription = biasScore(source);
+        let credibilityDescriptor = credibilityScore(source);
+        let url = article.url;
+        let description = article.description;
+        return `<li><h3><a target=_blank href="${url}">${title}</a></h3><div class="sourceInfo" <p>${source} | ${biasDescription}   <a target="_blank" href="faq.html" alt="FAQ Page">?</a></p><p>${credibilityDescriptor}</p><div class="seeMore-js"><p class="viewer">See More</p><p class="description hidden">${description}</p></div></div></li>`;
+    }).join("");
 }
 
 function biasScore(source) {
@@ -278,86 +261,93 @@ function credibilityScore(source) {
 
 function getRelevantData (popularRedditsData) {
     let redditDataArray = [];
-    let num = 6;
-    if (popularRedditsData['aggs']['link_id'].length < 5) {
+    let num = 5;
+    if (popularRedditsData.aggs.link_id.length < 5) {
         num = popularRedditsData['aggs']['link_id'].length;
     }
     for (let i=0; i<num; i++){
-        let popularReddits = popularRedditsData['aggs']['link_id'][i]['data'];
+        let popularReddits = popularRedditsData.aggs.link_id[i].data;
         let redditData = {
-        newsSite: popularReddits['domain'],
-        redditLink: popularReddits['full_link'],
-        redditId: popularReddits['id'],
-        newsTitle: popularReddits['title'],
-        newsSiteUrl: popularReddits['url']
+        newsSite: popularReddits.domain,
+        redditLink: popularReddits.full_link,
+        redditId: popularReddits.id,
+        newsTitle: popularReddits.title,
+        newsSiteUrl: popularReddits.url
         }
         redditDataArray.push(redditData);
     }
     return redditDataArray;
 }
 
-function CommentsForRedditData (redditArray, searchTerm) {
-    let allComments = [];
-    let recursiveRedditArray = redditArray.slice();
-    getComments(allComments, recursiveRedditArray, searchTerm, redditArray);
-}
-
-function getComments (allComments, recursiveRedditArray, searchTerm, redditArray) {
-    if (recursiveRedditArray.length !== 0) {
-        var settings = {
-            "url": `https://api.pushshift.io/reddit/search/comment/?link_id=${recursiveRedditArray[0]['redditId']}&q=${searchTerm}`,
+function CommentsForRedditData (redditArticles, searchTerm) {
+    const pendingCommentCalls = redditArticles.map(reddit => {
+        var apiCallConfig = {
+            "url": `https://api.pushshift.io/reddit/search/comment/?link_id=${reddit.redditId}&q=${searchTerm}`,
             "method": "GET",
         }
-        
-        $.ajax(settings).done(function (comments) {
-            let commentArray = getRelevantCommentInfo (comments);
-            allComments.push(commentArray);
-            recursiveRedditArray.shift();
-            getComments(allComments, recursiveRedditArray, searchTerm, redditArray);
-        });
-    }
-    else {
-        displayallComments (allComments, redditArray);
-        hideLoading ();
-    }
+        return $.ajax(apiCallConfig);
+    });
+    Promise
+    .all(pendingCommentCalls)
+    .then(results => {
+        let allComments = [];
+        results.forEach(commentsApiResponse => {
+            let comments = getRelevantCommentInfo(commentsApiResponse);
+            allComments.push(comments)
+
+        })
+        return allComments
+    
+    })
+    .then((allComments) => {
+        displayallComments(allComments, redditArticles);
+        hideLoading()
+    })
+    ;
+    
 }
 
+
 function displayallComments (allComments, redditArray) {
-    let commentHTML = '';
-    for  (let i=0; i<redditArray.length; i++) {
-        commentHTML += `<li><h3>${redditArray[i]['newsTitle']}</h3>
-                    <p>Source: ${redditArray[i]['newsSite']} <a target="_blank" href="${redditArray[i]['newsSiteUrl']}">View orginal article</a></p><div class="see-comments-js"><p class="comments-view-js">See Comments</p><div class="comments-js hidden">`
-        for (let j=0; j<allComments[i].length; j++) {
-            commentHTML += `<div class="each-comment"><p>Username: ${allComments[i][j]['username']}</p><p class="commentContent">${allComments[i][j]['comment']}` + '&nbsp;&nbsp' + `<a href="${redditArray[i]['redditLink']}">See comment in original context</a></p></div>`;
-        }
-    commentHTML += '</div></div></li>';
-    }
+
+    let commentHTML = 
+        redditArray.map((article, index) => {
+            const thisArticlesComments = allComments[index];
+
+            return `<li><h3>${article.newsTitle}</h3>
+            <p>Source: ${article.newsSite} <a target="_blank" href="${article.newsSiteUrl}">View orginal article</a></p>
+            <div class="see-comments-js"><p class="comments-view-js">See Comments</p><div class="comments-js hidden">`
+            + 
+            thisArticlesComments.map(comment => {
+                return `<div class="each-comment"><p>Username: ${comment.username}</p>
+                <p class="commentContent">${comment.comment}` + '&nbsp;&nbsp' + `<a class="comment-link-js" href="${article.redditLink}" target="_blank">See comment in original context</a></p></div>`;
+            }).join("");
+        }).join("")
+        +
+        '</div></div></li>';
+
     $('.comments-results').html(commentHTML);
 
-    /*Hide loading circle and show all results after comments have been placed in the DOM*/
     hideLoading ();
     revealResults ();
 }
 
-function getRelevantCommentInfo (comments) {
-    let commentArray = [];
-    let numOfComments = comments['data'].length;
-    let num = 5;
-    for (let i=0; i<num; i++) {
-        if (i<numOfComments) {
-            let commentInfo = comments['data'][i];
-            if (commentInfo['body'].length < 350) {
-                let commentObject = {
-                    username: commentInfo['author'],
-                    comment: commentInfo['body']
-                }
-                commentArray.push(commentObject)
-            }
-            else {
-                num++
-            }
+function getRelevantCommentInfo (commentsApiResponse) {
+    const commentArray = [];
+    const comments = commentsApiResponse.data;
+
+    for (let i = 0; i <= comments.length; i++){
+        if (commentArray.length == 5) break;
+        const comment = comments[i];
+
+        if (comment.body.length <= 350){
+            commentArray.push({
+                username: comment.author,
+                comment: comment.body
+            })
         }
     }
+    
     return commentArray;
 }
 
@@ -398,6 +388,12 @@ function clickHideComments () {
         $(event.currentTarget).find('.comments-view-js').text('See Comments');
         $(event.currentTarget).removeClass('hide-comments-js');
         $(event.currentTarget).addClass('see-comments-js');
+    })
+}
+
+function preventPropigationOnCommentsClick () {
+    $('.result-div-js').on('click','.comment-link-js', event => {
+        event.stopImmediatePropagation();
     })
 }
 
