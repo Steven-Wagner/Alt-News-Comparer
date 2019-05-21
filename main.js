@@ -333,10 +333,11 @@ function displayallComments (allComments, redditArray) {
 }
 
 function getRelevantCommentInfo (commentsApiResponse) {
+    console.log('commentsresponse', commentsApiResponse);
     const commentArray = [];
     const comments = commentsApiResponse.data;
 
-    for (let i = 0; i <= comments.length; i++){
+    for (let i = 0; i < comments.length; i++){
         if (commentArray.length == 5) break;
         const comment = comments[i];
 
